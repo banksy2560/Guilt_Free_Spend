@@ -1,0 +1,92 @@
+:root {
+  /* Colors - Space-separated HSL for alpha support e.g., hsl(var(--bg-base) / 0.5) */
+  --bg-base: 230 15% 10%;
+  /* Very dark, slate-like blue */
+  --bg-surface: 228 13% 15%;
+  --bg-elevated: 228 13% 20%;
+
+  --text-primary: 0 0% 98%;
+  --text-secondary: 215 16% 70%;
+  --text-muted: 215 14% 45%;
+
+  --brand-primary: 250 89% 65%;
+  /* Vibrant purple/blue */
+  --brand-secondary: 310 70% 55%;
+  /* Pinkish / Magenta */
+
+  --success: 142 71% 45%;
+  /* Emerald */
+  --warning: 38 92% 50%;
+  --danger: 348 83% 47%;
+
+  /* Typography */
+  --font-family-base: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family-display: 'Outfit', 'Inter', system-ui, sans-serif;
+
+  /* Easing */
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  --ease-out: cubic-bezier(0.25, 0.8, 0.25, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* Spacing */
+  --spacing-1: 0.25rem;
+  /* 4px */
+  --spacing-2: 0.5rem;
+  /* 8px */
+  --spacing-3: 0.75rem;
+  /* 12px */
+  --spacing-4: 1rem;
+  /* 16px */
+  --spacing-5: 1.5rem;
+  /* 24px */
+  --spacing-6: 2rem;
+  /* 32px */
+  --spacing-8: 3rem;
+  /* 48px */
+  --spacing-10: 4rem;
+  /* 64px */
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+  --radius-full: 9999px;
+
+  /* Glassmorphism helpers */
+  --glass-bg: hsl(var(--bg-surface) / 0.65);
+  --glass-border: hsl(var(--text-primary) / 0.08);
+  --glass-blur: blur(16px);
+  --glass-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.37);
+
+  /* Layout */
+  --app-max-width: 480px; 
+  --app-max-width-md: 42rem; /* 672px */
+  --app-max-width-lg: 48rem; /* 768px */
+  --spacing-modal-gap: var(--spacing-8); /* Gap between primary focal inputs and setting lists */
+}
+
+/* ── Light Theme ─────────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-base: 220 20% 97%;
+  --bg-surface: 220 18% 92%;
+  --bg-elevated: 220 16% 86%;
+
+  --text-primary: 224 30% 12%;
+  --text-secondary: 220 14% 40%;
+  --text-muted: 220 12% 60%;
+
+  --brand-primary: 250 70% 55%;
+  --brand-secondary: 310 65% 50%;
+
+  --glass-bg: hsl(var(--bg-surface) / 0.8);
+  --glass-border: hsl(var(--text-primary) / 0.1);
+  --glass-shadow: 0 8px 32px 0 hsl(0 0% 0% / 0.12);
+}
+
+[data-theme="light"] body {
+  background-image:
+    radial-gradient(circle at top right, hsl(var(--brand-primary) / 0.08) 0%, transparent 40%),
+    radial-gradient(circle at bottom left, hsl(var(--brand-secondary) / 0.06) 0%, transparent 40%);
+}

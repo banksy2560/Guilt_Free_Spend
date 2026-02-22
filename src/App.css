@@ -1,0 +1,57 @@
+/* App-specific styles */
+.app-container {
+  padding: var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+  flex: 1;
+  padding-bottom: 100px;
+  /* room for FAB */
+}
+
+.app-header {
+  padding-top: var(--spacing-6);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  background: linear-gradient(to right, hsl(var(--text-primary)), hsl(var(--text-secondary)));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.app-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.header-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  background: hsl(var(--text-primary) / 0.07);
+  border: 1px solid hsl(var(--text-primary) / 0.08);
+  color: hsl(var(--text-secondary));
+  transition: all 0.2s var(--ease-out);
+}
+
+.header-btn:hover {
+  background: hsl(var(--brand-primary) / 0.15);
+  border-color: hsl(var(--brand-primary) / 0.3);
+  color: hsl(var(--brand-primary));
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-5);
+}

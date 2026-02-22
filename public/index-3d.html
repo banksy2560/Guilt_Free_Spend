@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guilt-Free Spending — You Can Spend Today</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { display: ['Inter', 'system-ui', 'sans-serif'] },
+                    colors: {
+                        neon: { blue: '#4F8EF7', purple: '#9B5CF6' }
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background: #080810;
+            color: #fff;
+            overflow-x: hidden
+        }
+
+        #three-canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            width: 100%;
+            height: 100%
+        }
+
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+            pointer-events: none
+        }
+
+        .ui-layer a,
+        .ui-layer button,
+        .glass-btn {
+            pointer-events: all
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px
+        }
+
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 999px;
+            padding: 14px 32px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all .25s ease;
+            letter-spacing: .02em
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+            transform: scale(1.03)
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 24px
+        }
+
+        .scroll-section {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: #9B5CF6;
+            margin-bottom: 20px;
+            opacity: .9
+        }
+
+        h1.hero-title {
+            font-size: clamp(56px, 12vw, 140px);
+            font-weight: 900;
+            line-height: .95;
+            letter-spacing: -.04em;
+            background: linear-gradient(135deg, #fff 30%, rgba(255, 255, 255, .45) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 24px
+        }
+
+        h1.hero-title span {
+            background: linear-gradient(135deg, #4F8EF7, #9B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text
+        }
+
+        .hero-sub {
+            font-size: 18px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, .5);
+            max-width: 480px;
+            line-height: 1.6;
+            margin-bottom: 40px
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            opacity: .4;
+            font-size: 11px;
+            letter-spacing: .12em;
+            text-transform: uppercase
+        }
+
+        .scroll-hint-dot {
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            animation: bounce 1.8s ease-in-out infinite
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+                opacity: .3
+            }
+
+            50% {
+                transform: translateY(-10px);
+                opacity: 1
+            }
+        }
+
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity .8s ease, transform .8s ease
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0)
+        }
+
+        .service-number {
+            font-size: 13px;
+            font-weight: 700;
+            color: #4F8EF7;
+            letter-spacing: .12em;
+            margin-bottom: 12px
+        }
+
+        .service-title {
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 12px
+        }
+
+        .service-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, .5);
+            line-height: 1.7;
+            max-width: 440px
+        }
+
+        .dashboard-wrap {
+            min-height: 100vh;
+            padding: 80px 24px 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center
+        }
+
+        .dash-hero {
+            width: 100%;
+            max-width: 680px;
+            padding: 40px 32px 48px;
+            text-align: center;
+            margin-bottom: 32px
+        }
+
+        .dash-amount {
+            font-size: clamp(72px, 14vw, 120px);
+            font-weight: 900;
+            letter-spacing: -.04em;
+            line-height: 1
+        }
+
+        .dash-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .35);
+            margin-bottom: 16px
+        }
+
+        .dash-sub {
+            font-size: 17px;
+            color: rgba(255, 255, 255, .4);
+            margin-top: 12px;
+            font-weight: 400
+        }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            width: 100%;
+            max-width: 680px;
+            margin-bottom: 32px
+        }
+
+        .cat-card {
+            padding: 24px;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease
+        }
+
+        .cat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .4)
+        }
+
+        .cat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            margin-bottom: 16px
+        }
+
+        .cat-name {
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            letter-spacing: -.01em
+        }
+
+        .cat-meta {
+            font-size: 13px;
+            color: rgba(255, 255, 255, .4);
+            font-weight: 500;
+            margin-bottom: 16px
+        }
+
+        .cat-amount {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 4px
+        }
+
+        .cat-sub {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .35);
+            font-weight: 500
+        }
+
+        .progress-bg {
+            height: 6px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .08);
+            overflow: hidden;
+            margin-top: 16px
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 1.2s cubic-bezier(.16, 1, .3, 1)
+        }
+
+        .momentum {
+            display: inline-block;
+            margin-top: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .08em;
+            padding: 4px 10px;
+            border-radius: 999px
+        }
+
+        .momentum.good {
+            color: #34D399;
+            background: rgba(52, 211, 153, .1)
+        }
+
+        .momentum.warn {
+            color: #FBBF24;
+            background: rgba(251, 191, 36, .1)
+        }
+
+        .momentum.bad {
+            color: #F87171;
+            background: rgba(248, 113, 113, .1)
+        }
+
+        .chart-section {
+            width: 100%;
+            max-width: 680px;
+            padding: 28px 28px 24px
+        }
+
+        .chart-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: .04em;
+            color: rgba(255, 255, 255, .6);
+            text-transform: uppercase;
+            margin-bottom: 20px
+        }
+
+        .chart-canvas-wrap {
+            height: 160px;
+            display: flex;
+            align-items: flex-end;
+            gap: 8px
+        }
+
+        .bar {
+            flex: 1;
+            border-radius: 8px 8px 0 0;
+            min-width: 0;
+            transition: height 1.2s cubic-bezier(.16, 1, .3, 1)
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            z-index: 50;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4F8EF7, #9B5CF6);
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            font-weight: 300;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(79, 142, 247, .4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform .2s ease, box-shadow .2s ease
+        }
+
+        .fab:hover {
+            transform: scale(1.08);
+            box-shadow: 0 12px 40px rgba(79, 142, 247, .6)
+        }
+
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(12px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .3s ease
+        }
+
+        .modal-bg.open {
+            opacity: 1;
+            pointer-events: all
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%) translateY(100%);
+            z-index: 50;
+            width: 100%;
+            max-width: 480px;
+            background: rgba(20, 20, 30, .95);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 28px 28px 0 0;
+            padding: 12px 24px 40px;
+            transition: transform .4s cubic-bezier(.16, 1, .3, 1)
+        }
+
+        .bottom-sheet.open {
+            transform: translateX(-50%) translateY(0)
+        }
+
+        .sheet-handle {
+            width: 40px;
+            height: 5px;
+            background: rgba(255, 255, 255, .15);
+            border-radius: 999px;
+            margin: 0 auto 24px
+        }
+
+        .sheet-title {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            margin-bottom: 24px
+        }
+
+        .input-wrap {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .08);
+            border-radius: 16px;
+            padding: 14px 18px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px
+        }
+
+        .input-wrap input,
+        .input-wrap select {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 500;
+            width: 100%;
+            font-family: inherit
+        }
+
+        .input-wrap select option {
+            background: #1a1a2e;
+            color: #fff
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .35);
+            letter-spacing: .1em;
+            min-width: 70px
+        }
+
+        .amount-display {
+            font-size: 64px;
+            font-weight: 900;
+            letter-spacing: -.04em;
+            text-align: center;
+            padding: 16px 0;
+            color: rgba(255, 255, 255, .15)
+        }
+
+        .amount-display.has-value {
+            color: #fff
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 17px;
+            border-radius: 18px;
+            border: none;
+            background: linear-gradient(135deg, #4F8EF7, #9B5CF6);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            letter-spacing: .01em;
+            transition: opacity .2s ease, transform .15s ease
+        }
+
+        .submit-btn:hover {
+            opacity: .9;
+            transform: scale(1.01)
+        }
+
+        .close-x {
+            position: absolute;
+            top: 16px;
+            right: 20px;
+            background: rgba(255, 255, 255, .08);
+            border: none;
+            color: rgba(255, 255, 255, .6);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center
+        }
+
+        .nav-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 20;
+            padding: 20px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none
+        }
+
+        .nav-logo {
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -.02em;
+            color: #fff;
+            pointer-events: all
+        }
+
+        .nav-logo span {
+            color: #9B5CF6
+        }
+
+        .footer-cta {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 24px;
+            text-align: center
+        }
+
+        @media(max-width:640px) {
+            .cat-grid {
+                grid-template-columns: 1fr
+            }
+
+            .scroll-section {
+                padding: 60px 20px
+            }
+
+            .sheet-title {
+                font-size: 18px
+            }
+        }
+    </style>
+</head>
+
+<body class="dark">
+
+    <!-- Nav -->
+    <nav class="nav-bar">
+        <div class="nav-logo">guilt<span>·</span>free</div>
+        <button class="glass-btn" id="open-dash-btn" onclick="showDash()">Open Dashboard →</button>
+    </nav>
+
+    <!-- Three.js Canvas -->
+    <canvas id="three-canvas"></canvas>
+
+    <!-- ═══ UI LAYER ═══ -->
+    <div class="ui-layer">
+
+        <!-- §1 Hero -->
+        <section class="hero-section" id="hero">
+            <div class="tag">Daily Budget Intelligence</div>
+            <h1 class="hero-title">YOU CAN<br><span>SPEND</span><br>TODAY</h1>
+            <p class="hero-sub">Know your exact daily allowance without blowing your month. Zero anxiety. Pure control.
+            </p>
+            <button class="glass-btn" onclick="showDash()">Enter Dashboard &nbsp;→</button>
+            <div class="scroll-hint"><span>Scroll</span>
+                <div class="scroll-hint-dot"></div>
+            </div>
+        </section>
+
+        <!-- §2 Track -->
+        <section class="scroll-section fade-up" id="s1">
+            <div class="glass-card" style="max-width:540px;padding:48px">
+                <div class="service-number">01 — TRACK</div>
+                <div class="service-title">Know to the dollar.</div>
+                <p class="service-desc">We calculate your safe daily spending from your monthly budget — factoring in
+                    what's already gone. No spreadsheets. No stress.</p>
+            </div>
+        </section>
+
+        <!-- §3 Understand -->
+        <section class="scroll-section fade-up" id="s2" style="align-items:flex-end">
+            <div class="glass-card" style="max-width:540px;padding:48px">
+                <div class="service-number">02 — UNDERSTAND</div>
+                <div class="service-title">See your patterns.</div>
+                <p class="service-desc">Visual charts reveal where your money actually goes. Spot categories that creep
+                    over budget before the month ends — not after.</p>
+            </div>
+        </section>
+
+        <!-- §4 Win -->
+        <section class="scroll-section fade-up" id="s3">
+            <div class="glass-card" style="max-width:540px;padding:48px">
+                <div class="service-number">03 — WIN</div>
+                <div class="service-title">Stay ahead of pace.</div>
+                <p class="service-desc">Momentum badges tell you instantly if you're on track, ahead, or overpacing.
+                    Budget harmony every single day.</p>
+            </div>
+        </section>
+
+        <!-- §5 Dashboard -->
+        <section class="dashboard-wrap fade-up" id="dashboard-section">
+            <div class="glass-card dash-hero" id="dash-hero-card">
+                <div class="dash-label">Available Today</div>
+                <div class="dash-amount" id="dash-amount">$—</div>
+                <div class="dash-sub">Without blowing your month.</div>
+            </div>
+
+            <div class="cat-grid" id="cat-grid"></div>
+
+            <div class="glass-card chart-section">
+                <div class="chart-title">Monthly Spending Pace</div>
+                <div class="chart-canvas-wrap" id="chart-wrap"></div>
+            </div>
+        </section>
+
+        <!-- §6 Footer CTA -->
+        <section class="footer-cta fade-up" id="footer-cta">
+            <div class="tag">Ready?</div>
+            <h2
+                style="font-size:clamp(40px,8vw,96px);font-weight:900;letter-spacing:-.04em;line-height:.95;margin-bottom:32px">
+                Start spending<br>guilt&#8209;free.</h2>
+            <button class="glass-btn" onclick="showDash()">Open Your Dashboard</button>
+        </section>
+    </div>
+
+    <!-- FAB -->
+    <button class="fab" id="fab-btn" style="display:none" onclick="openSheet()">+</button>
+
+    <!-- Modal Backdrop -->
+    <div class="modal-bg" id="modal-bg" onclick="closeSheet()"></div>
+
+    <!-- Bottom Sheet -->
+    <div class="bottom-sheet" id="bottom-sheet">
+        <button class="close-x" onclick="closeSheet()">×</button>
+        <div class="sheet-handle"></div>
+        <div class="sheet-title">Add Spending</div>
+        <div class="amount-display" id="amount-display">$0</div>
+        <form onsubmit="submitTx(event)">
+            <div class="input-wrap">
+                <span class="input-label">Amount</span>
+                <input type="number" id="tx-amount" step="0.01" min="0" placeholder="0.00"
+                    oninput="updateAmountDisplay(this.value)" required />
+            </div>
+            <div class="input-wrap">
+                <span class="input-label">Category</span>
+                <select id="tx-cat"></select>
+            </div>
+            <div class="input-wrap">
+                <span class="input-label">Note</span>
+                <input type="text" id="tx-note" placeholder="e.g. Coffee" />
+            </div>
+            <button type="submit" class="submit-btn">Save Transaction</button>
+        </form>
+    </div>
+
+    <!-- ═══ SCRIPTS ═══ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        // ═══════════════════════════════════════════
+        // THREE.JS SCENE
+        // ═══════════════════════════════════════════
+        const canvas = document.getElementById('three-canvas');
+        const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x06060f);
+
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 100);
+        camera.position.set(0, 0, 5);
+
+        // Lights
+        const neonBlue = new THREE.DirectionalLight(0x4F8EF7, 6);
+        neonBlue.position.set(3, 2, 2);
+        scene.add(neonBlue);
+
+        const deepPurple = new THREE.PointLight(0x9B5CF6, 8, 12);
+        deepPurple.position.set(-3, -1, 2);
+        scene.add(deepPurple);
+
+        const rimLight = new THREE.DirectionalLight(0xffffff, 1.2);
+        rimLight.position.set(0, 3, -3);
+        scene.add(rimLight);
+
+        scene.add(new THREE.AmbientLight(0x111122, 1.5));
+
+        // TorusKnot
+        const geo = new THREE.TorusKnotGeometry(1.4, 0.42, 220, 32, 2, 3);
+        const mat = new THREE.MeshPhysicalMaterial({
+            color: 0x111120,
+            metalness: 0.7,
+            roughness: 0.08,
+            transmission: 0.15,
+            thickness: 1.5,
+            iridescence: 1,
+            iridescenceIOR: 1.6,
+            reflectivity: 0.9,
+            envMapIntensity: 1,
+            clearcoat: 1,
+            clearcoatRoughness: 0.05,
+        });
+        const knot = new THREE.Mesh(geo, mat);
+        scene.add(knot);
+
+        // Particle field
+        const partGeo = new THREE.BufferGeometry();
+        const partCount = 1800;
+        const posArr = new Float32Array(partCount * 3);
+        for (let i = 0; i < partCount * 3; i++) posArr[i] = (Math.random() - .5) * 30;
+        partGeo.setAttribute('position', new THREE.BufferAttribute(posArr, 3));
+        const partMat = new THREE.PointsMaterial({ color: 0x4F8EF7, size: 0.025, transparent: true, opacity: 0.35 });
+        scene.add(new THREE.Points(partGeo, partMat));
+
+        // Camera float animation state
+        let camFloatX = 0, camFloatY = 0, camTargetZ = 5, camRotX = 0;
+        const clock = new THREE.Clock();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // GSAP Scroll
+        gsap.registerPlugin(ScrollTrigger);
+
+        gsap.timeline({
+            scrollTrigger: {
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: 1.5,
+            }
+        })
+            .to(camera.position, { z: -1, duration: 3 }, 0)
+            .to(camera.rotation, { x: 0.3, y: 0.6, duration: 3 }, 0)
+            .to(knot.rotation, { y: Math.PI * 2, x: Math.PI, duration: 3 }, 0)
+            .to(knot.position, { y: -1.5, duration: 3 }, 0);
+
+        // Fade sections on scroll
+        document.querySelectorAll('.fade-up').forEach(el => {
+            const obs = new IntersectionObserver(([e]) => {
+                if (e.isIntersecting) { el.classList.add('visible'); obs.disconnect(); }
+            }, { threshold: 0.15 });
+            obs.observe(el);
+        });
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const t = clock.getElapsedTime();
+            knot.rotation.y += 0.003;
+            knot.rotation.x += 0.001;
+            // breathing
+            camera.position.x += (Math.sin(t * 0.3) * 0.08 - camera.position.x) * 0.04;
+            camera.position.y += (Math.cos(t * 0.2) * 0.05 - camera.position.y) * 0.04;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // ═══════════════════════════════════════════
+        // BUDGET STATE (localStorage)
+        // ═══════════════════════════════════════════
+        const DEMO_CATEGORIES = [
+            { id: 'c1', name: 'Groceries', icon: '🛒', limit: 600, color: '#34D399' },
+            { id: 'c2', name: 'Dining Out', icon: '🍽️', limit: 300, color: '#F472B6' },
+            { id: 'c3', name: 'Fun Money', icon: '🎮', limit: 200, color: '#A78BFA' },
+            { id: 'c4', name: 'Transport', icon: '🚗', limit: 150, color: '#60A5FA' },
+        ];
+
+        function loadState() {
+            try { return JSON.parse(localStorage.getItem('gfs_state')) || null; } catch { return null; }
+        }
+        function saveState(s) { localStorage.setItem('gfs_state', JSON.stringify(s)); }
+
+        let state = loadState() || { categories: DEMO_CATEGORIES, transactions: [] };
+
+        function today() { return new Date().toISOString().slice(0, 10); }
+        function daysInMonth() { const n = new Date(); return new Date(n.getFullYear(), n.getMonth() + 1, 0).getDate(); }
+        function dayOfMonth() { return new Date().getDate(); }
+
+        function computeStats() {
+            const dom = daysInMonth(), doy = dayOfMonth();
+            return state.categories.map(cat => {
+                const monthTx = state.transactions.filter(t => t.categoryId === cat.id && t.date.startsWith(new Date().toISOString().slice(0, 7)));
+                const spent = monthTx.reduce((s, t) => s + t.amount, 0);
+                const dailyAllowance = cat.limit / dom;
+                const expectedSpend = dailyAllowance * doy;
+                const remaining = Math.max(0, cat.limit - spent);
+                const remainingToday = Math.max(0, remaining / (dom - doy + 1));
+                const ratio = cat.limit > 0 ? Math.min(spent / cat.limit, 1) : 0;
+                let momentum = 'on-track';
+                if (spent < expectedSpend * 0.85) momentum = 'ahead';
+                if (spent > expectedSpend * 1.15) momentum = 'overpacing';
+                return { ...cat, spent, remaining, remainingToday, ratio, momentum };
+            });
+        }
+
+        function totalRemaining() {
+            return computeStats().reduce((s, c) => s + c.remainingToday, 0);
+        }
+
+        // ═══════════════════════════════════════════
+        // RENDER DASHBOARD
+        // ═══════════════════════════════════════════
+        function render() {
+            const stats = computeStats();
+            const total = stats.reduce((s, c) => s + c.remainingToday, 0);
+
+            // Hero
+            document.getElementById('dash-amount').textContent =
+                '$' + Math.round(total).toLocaleString();
+
+            // Category cards
+            const grid = document.getElementById('cat-grid');
+            grid.innerHTML = stats.map(c => {
+                const pct = Math.round(c.ratio * 100);
+                const momMap = { ahead: ['good', '📈 Ahead'], 'on-track': ['', '✅ On track'], overpacing: ['warn', '⚠️ Overpacing'] };
+                const [momClass, momLabel] = momMap[c.momentum] || momMap['on-track'];
+                return `<div class="glass-card cat-card">
+      <div class="cat-icon" style="background:${c.color}22;font-size:24px">${c.icon}</div>
+      <div class="cat-name">${c.name}</div>
+      <div class="cat-meta">$${c.limit} / mo · ${pct}% used</div>
+      <div class="cat-amount" style="color:${c.color}">$${Math.round(c.remainingToday)}</div>
+      <div class="cat-sub">left today</div>
+      <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;background:${c.color}"></div></div>
+      <div class="momentum ${c.ratio >= 1 ? 'bad' : momClass}">${momLabel}</div>
+    </div>`;
+            }).join('');
+
+            // Chart bars
+            const chartWrap = document.getElementById('chart-wrap');
+            const maxSpent = Math.max(...stats.map(c => c.spent), 1);
+            chartWrap.innerHTML = stats.map(c => {
+                const h = Math.round((c.spent / maxSpent) * 140);
+                return `<div class="bar" style="height:${h}px;background:${c.color}44;border:1px solid ${c.color}66" title="${c.name}: $${c.spent.toFixed(2)}"></div>`;
+            }).join('') + stats.map(c => '').join('');
+
+            // Populate select
+            const sel = document.getElementById('tx-cat');
+            sel.innerHTML = state.categories.map(c => `<option value="${c.id}">${c.icon} ${c.name}</option>`).join('');
+        }
+
+        // ═══════════════════════════════════════════
+        // NAVIGATION
+        // ═══════════════════════════════════════════
+        let dashMode = false;
+        function showDash() {
+            dashMode = true;
+            document.getElementById('fab-btn').style.display = 'flex';
+            document.getElementById('open-dash-btn').style.display = 'none';
+            const dash = document.getElementById('dashboard-section');
+            dash.scrollIntoView({ behavior: 'smooth' });
+            render();
+        }
+
+        // ═══════════════════════════════════════════
+        // SHEET
+        // ═══════════════════════════════════════════
+        function openSheet() {
+            document.getElementById('modal-bg').classList.add('open');
+            document.getElementById('bottom-sheet').classList.add('open');
+            document.getElementById('tx-amount').focus();
+        }
+        function closeSheet() {
+            document.getElementById('modal-bg').classList.remove('open');
+            document.getElementById('bottom-sheet').classList.remove('open');
+        }
+        function updateAmountDisplay(val) {
+            const el = document.getElementById('amount-display');
+            el.textContent = val ? '$' + parseFloat(val).toFixed(0) : '$0';
+            el.className = 'amount-display' + (val ? ' has-value' : '');
+        }
+        function submitTx(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('tx-amount').value);
+            const categoryId = document.getElementById('tx-cat').value;
+            const notes = document.getElementById('tx-note').value;
+            if (!amount || !categoryId) return;
+            state.transactions.push({ id: Date.now(), categoryId, amount, notes, date: today() });
+            saveState(state);
+            render();
+            closeSheet();
+            document.getElementById('tx-amount').value = '';
+            document.getElementById('tx-note').value = '';
+            document.getElementById('amount-display').textContent = '$0';
+            document.getElementById('amount-display').className = 'amount-display';
+            showToast('Transaction saved ✅');
+        }
+
+        // ═══════════════════════════════════════════
+        // TOAST
+        // ═══════════════════════════════════════════
+        function showToast(msg) {
+            const t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:110px;left:50%;transform:translateX(-50%);background:rgba(20,20,30,.9);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:12px 24px;font-size:14px;font-weight:600;color:#fff;z-index:99;pointer-events:none;transition:all .3s ease;white-space:nowrap';
+            t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; setTimeout(() => t.remove(), 300); }, 2800);
+        }
+
+        // Keyboard shortcut
+        window.addEventListener('keydown', e => {
+            if (e.key === 'n' || e.key === 'N') { if (dashMode) openSheet(); }
+            if (e.key === 'Escape') closeSheet();
+        });
+
+        // Initial render
+        render();
+    </script>
+</body>
+
+</html>
