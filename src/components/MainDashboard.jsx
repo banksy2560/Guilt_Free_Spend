@@ -1,10 +1,30 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useBudget } from '../context/BudgetContext';
-import { WalletCards, PiggyBank } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { WalletCards, PiggyBank, Target, Edit2, Check } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function MainDashboard() {
     const { totalRemainingToday, totalDailyAllowance, monthSavedSoFar } = useBudget();
+
+    // Goal State
+    const [goalName, setGoalName] = useState(() => localStorage.getItem('gfs-goal-name') || 'Japan Trip');
+    const [goalAmount, setGoalAmount] = useState(() => Number(localStorage.getItem('gfs-goal-amount')) || 1500);
+    const [isEditingGoal, setIsEditingGoal] = useState(false);
+    const [tempGoalName, setTempGoalName] = useState(goalName);
+    const [tempGoalAmount, setTempGoalAmount] = useState(goalAmount);
+
+    useEffect(() => {
+        localStorage.setItem('gfs-goal-name', goalName);
+        localStorage.setItem('gfs-goal-amount', goalAmount.toString());
+    }, [goalName, goalAmount]);
+
+    const saveGoal = () => {
+        setGoalName(tempGoalName || 'My Goal');
+        setGoalAmount(Number(tempGoalAmount) || 100);
+        setIsEditingGoal(false);
+    };
+
+    const goalProgress = Math.min(100, (monthSavedSoFar / goalAmount) * 100);
 
     // Format currency
     const formattedAllowance = new Intl.NumberFormat('en-US', {
@@ -49,20 +69,96 @@ export default function MainDashboard() {
 
                 <p className="text-lg text-gray-500 dark:text-gray-400 font-medium">Without blowing your month.</p>
 
-                {/* Snowball Vault */}
-                {monthSavedSoFar > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3, duration: 0.5 }}
-                        className="mt-5 flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20"
-                    >
-                        <PiggyBank size={16} className="text-emerald-600 dark:text-emerald-400" />
-                        <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
-                            ${Math.round(monthSavedSoFar)} saved this month
-                        </span>
-                    </motion.div>
-                )}
+                {/* Snowball Vault & Visual Goal */}
+                <AnimatePresence mode="wait">
+                    {monthSavedSoFar > 0 && !isEditingGoal && (
+                        <motion.button
+                            key="goal-display"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            onClick={() => {
+                                setTempGoalName(goalName);
+                                setTempGoalAmount(goalAmount);
+                                setIsEditingGoal(true);
+                            }}
+                            className="mt-6 flex flex-col items-center gap-2 px-6 py-4 rounded-[2rem] bg-white/50 dark:bg-black/20 border border-gray-100 dark:border-white/5 hover:bg-white/80 dark:hover:bg-white/5 transition-all group w-full max-w-[320px] relative overflow-hidden"
+                        >
+                            {/* Progress Ring Background */}
+                            <div className="absolute inset-0 bg-emerald-500/5 dark:bg-emerald-500/10" style={{ width: `${goalProgress}%`, transition: 'width 1s cubic-bezier(0.4, 0, 0.2, 1)' }}></div>
+
+                            <div className="flex w-full justify-between items-center relative z-10">
+                                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400">
+                                    <Target size={18} />
+                                    <span className="font-bold text-[15px]">{goalName}</span>
+                                </div>
+                                <span className="text-xs font-medium text-gray-500 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Edit2 size={12} /> Edit
+                                </span>
+                            </div>
+
+                            <div className="w-full relative z-10">
+                                <div className="flex justify-between items-baseline mb-1.5">
+                                    <span className="text-2xl font-black text-gray-900 dark:text-white tracking-tight">${Math.round(monthSavedSoFar)}</span>
+                                    <span className="text-sm text-gray-400 font-medium">of ${goalAmount}</span>
+                                </div>
+                                <div className="h-2 w-full bg-gray-200 dark:bg-white/10 rounded-full overflow-hidden">
+                                    <motion.div
+                                        className="h-full bg-emerald-500 rounded-full"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${goalProgress}%` }}
+                                        transition={{ duration: 1, ease: "easeOut" }}
+                                    />
+                                </div>
+                                <p className="text-[12px] text-gray-500 font-medium mt-2 text-left">
+                                    {goalProgress >= 100 ? "Goal met! 🎉" : "Saved from underspending this month"}
+                                </p>
+                            </div>
+                        </motion.button>
+                    )}
+
+                    {isEditingGoal && (
+                        <motion.div
+                            key="goal-edit"
+                            initial={{ opacity: 0, scale: 0.95 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            className="mt-6 flex flex-col gap-3 px-6 py-5 rounded-[2rem] bg-white dark:bg-[#1C1C1E] border border-gray-200 dark:border-white/10 shadow-xl w-full max-w-[320px] relative z-20"
+                        >
+                            <div className="flex items-center gap-2 mb-2 text-gray-900 dark:text-white">
+                                <Target size={16} className="text-emerald-500" />
+                                <h4 className="font-bold text-[15px]">Set Visual Goal</h4>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <input
+                                    type="text"
+                                    value={tempGoalName}
+                                    onChange={(e) => setTempGoalName(e.target.value)}
+                                    placeholder="What are you saving for?"
+                                    className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-3 py-2 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-emerald-500 transition-colors"
+                                />
+                                <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
+                                    <input
+                                        type="number"
+                                        value={tempGoalAmount}
+                                        onChange={(e) => setTempGoalAmount(e.target.value)}
+                                        placeholder="Amount"
+                                        className="w-full bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl pl-7 pr-3 py-2 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-emerald-500 transition-colors"
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                onClick={saveGoal}
+                                className="w-full mt-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm py-2.5 rounded-xl transition-colors flex justify-center items-center gap-1.5"
+                            >
+                                <Check size={16} /> Save Goal
+                            </button>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
 
             {/* Background decor — temperature-reactive */}

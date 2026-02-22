@@ -11,7 +11,9 @@ import SpendingHistoryChart from '../components/SpendingHistoryChart';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
 import WeeklySummary from '../components/WeeklySummary';
-import { History, Moon, Sun, PlusCircle, ArrowLeft, Sparkles } from 'lucide-react';
+import SubscriptionTracker from '../components/SubscriptionTracker';
+import InstallPrompt from '../components/InstallPrompt';
+import { History, Moon, Sun, PlusCircle, ArrowLeft, Sparkles, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -20,6 +22,7 @@ function DashboardShell() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const [addCatOpen, setAddCatOpen] = useState(false);
     const [weeklyOpen, setWeeklyOpen] = useState(false);
+    const [subscriptionsOpen, setSubscriptionsOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -68,6 +71,9 @@ function DashboardShell() {
                         </h1>
                     </div>
                     <div className="flex items-center gap-4">
+                        <button className="header-btn" onClick={() => setSubscriptionsOpen(true)} title="View Subscriptions">
+                            <RefreshCw size={18} className="text-rose-400" />
+                        </button>
                         <button className="header-btn" onClick={() => setWeeklyOpen(true)} title="Weekly Summary">
                             <Sparkles size={18} />
                         </button>
@@ -102,8 +108,10 @@ function DashboardShell() {
 
                 {hasCategories && <TransactionQuickAdd />}
                 <TransactionHistory isOpen={historyOpen} onClose={() => setHistoryOpen(false)} />
+                <SubscriptionTracker isOpen={subscriptionsOpen} onClose={() => setSubscriptionsOpen(false)} />
                 <AddCategoryModal isOpen={addCatOpen} onClose={() => setAddCatOpen(false)} />
                 <WeeklySummary isOpen={weeklyOpen} onClose={() => setWeeklyOpen(false)} />
+                <InstallPrompt />
             </div>
         </div>
     );

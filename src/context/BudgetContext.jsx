@@ -6,6 +6,7 @@ const BudgetContext = createContext();
 
 export function BudgetProvider({ children, addToast }) {
     const [data, setData] = useState({ categories: [], transactions: [] });
+    const [pendingTransactions, setPendingTransactions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
 
@@ -29,6 +30,11 @@ export function BudgetProvider({ children, addToast }) {
                         ...t, categoryId: t.category_id, amount: parseFloat(t.amount)
                     }))
                 });
+
+                // Load pending transactions from local storage
+                const savedPending = localStorage.getItem('gfs-pending');
+                if (savedPending) setPendingTransactions(JSON.parse(savedPending));
+
             } catch (err) {
                 console.error('Error fetching data:', err.message);
                 setError(err.message);
@@ -39,6 +45,11 @@ export function BudgetProvider({ children, addToast }) {
         }
         fetchData();
     }, []);
+
+    // Save pending transactions to local storage whenever they change
+    useEffect(() => {
+        localStorage.setItem('gfs-pending', JSON.stringify(pendingTransactions));
+    }, [pendingTransactions]);
 
     const addTransaction = useCallback(async (categoryId, amount, notes = '') => {
         try {
@@ -54,6 +65,31 @@ export function BudgetProvider({ children, addToast }) {
             console.error('Error adding transaction:', err.message);
             addToast?.('Failed to save transaction', 'error');
         }
+    }, [addToast]);
+
+    const addPendingTransaction = useCallback((categoryId, amount, notes = '') => {
+        const newPending = {
+            id: 'pending_' + Date.now(),
+            categoryId,
+            amount,
+            notes,
+            date: new Date().toISOString(),
+            unlocksAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 hours from now
+        };
+        setPendingTransactions(prev => [newPending, ...prev]);
+        addToast?.('Added to 24h Cooldown Vault', 'success');
+    }, [addToast]);
+
+    const confirmPendingTransaction = useCallback(async (pendingTx) => {
+        // Remove from pending
+        setPendingTransactions(prev => prev.filter(tx => tx.id !== pendingTx.id));
+        // Add to real transactions
+        await addTransaction(pendingTx.categoryId, pendingTx.amount, pendingTx.notes);
+    }, [addTransaction]);
+
+    const cancelPendingTransaction = useCallback((id) => {
+        setPendingTransactions(prev => prev.filter(tx => tx.id !== id));
+        addToast?.('Impulse buy avoided! Great job.', 'success');
     }, [addToast]);
 
     const addCategory = useCallback(async (name, limit, icon = 'circle') => {
@@ -144,6 +180,7 @@ export function BudgetProvider({ children, addToast }) {
 
     const value = {
         transactions: data.transactions,
+        pendingTransactions,
         categories: data.categories,
         categoryStats,
         totalDailyAllowance,
@@ -152,6 +189,9 @@ export function BudgetProvider({ children, addToast }) {
         isLoading,
         error,
         addTransaction,
+        addPendingTransaction,
+        confirmPendingTransaction,
+        cancelPendingTransaction,
         addCategory,
         deleteTransaction
     };
