@@ -38,12 +38,13 @@ def build():
     body = bd.Pos(0, 0, CZ) * bd.Sphere(R)
     body &= bd.Box(BIG, BIG, BIG, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
 
-    # meridian ribs: thin wedges intersected with a skin of the sphere, cut out once
+    # meridian ribs: a comb of 72 thin planar boxes (cheap to fuse), trimmed once to a
+    # skin of the sphere, then cut from the body in one boolean
+    box = bd.Box(R + 2 - 20, RIB_W, BIG, align=(TOP, bd.Align.CENTER, bd.Align.CENTER))
+    box = bd.Pos(20, 0, CZ) * box
+    comb = bd.Compound([bd.Rot(0, 0, i * 360 / RIBS) * box for i in range(RIBS)])
     skin = bd.Pos(0, 0, CZ) * (bd.Sphere(R + 1) - bd.Sphere(R - RIB_DEPTH))
-    groove = skin & bd.Box(R + 2, RIB_W, BIG, align=(TOP, bd.Align.CENTER, bd.Align.CENTER)).moved(
-        bd.Location((0, 0, CZ)))
-    grooves = [bd.Rot(0, 0, i * 360 / RIBS) * groove for i in range(RIBS)]
-    body -= bd.Compound(grooves)
+    body -= (skin & comb)
 
     # tilted face (cut everything in front of the plane), then the puck pocket
     body -= plane.location * bd.Box(BIG, BIG, BIG, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
