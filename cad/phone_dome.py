@@ -65,7 +65,7 @@ def build():
 if __name__ == "__main__":
     part = build()
     bb = part.bounding_box()
-    print("valid", part.is_valid(), "solids", len(part.solids()))
+    print("valid", part.is_valid, "solids", len(part.solids()))
     print("size", round(bb.size.X, 1), round(bb.size.Y, 1), round(bb.size.Z, 1), "zmin", round(bb.min.Z, 3))
     print("volume cm3", round(part.volume / 1000, 1))
     out = Path(__file__).parent
