@@ -6,7 +6,8 @@ passage and leaves the back of the base at desk level.
 
 Plain build123d, units mm, +Z up, the phone faces -Y. Run to write STEP and STL:
     python phone_dome.py
-Assumed: puck 56 mm x 5.5 mm (check yours), 0.4 mm clearance per side.
+Assumed: puck 56 mm x 5.5 mm (check yours), 0.4 mm clearance per side; it sits
+0.55 mm proud of the face. Cable hole 11 x 7 mm.
 """
 import math
 from pathlib import Path
@@ -18,11 +19,13 @@ CZ = 34.0           # sphere centre height; base cut flat at z=0 (base radius ~3
 TILT = 38.0         # puck face angle from horizontal, degrees
 D = 30.0            # puck plane distance from sphere centre (face circle radius 40)
 PUCK_D, PUCK_T = 56.0, 5.5
+SEAT = 0.9          # pocket depth as a fraction of the puck: it stands 10% proud of the
+                    # face, so the phone meets the puck and not the rim around it
 CLEAR = 0.4
-PLUG = (12.5, 8.5)  # assumed USB-C plug housing (Apple's is ~12.3 x 8.4): measure yours
-PASS_L, PASS_W = 16.0, 11.0   # internal passage: the plug plus ~1.5 mm each side
+HOLE = (11.0, 7.0)  # cable hole, wide x thick: what the plug head is fed through
+PASS_L, PASS_W = HOLE         # internal passage (radial x across)
 PASS_R = 23.0       # passage centre, mm uphill of the puck centre along the face
-TUN_W, TUN_H = 15.0, 17.0     # tunnel under the base to the back: the plug passes it too
+TUN_W, TUN_H = HOLE[0], HOLE[1] + HOLE[0] / 2  # tunnel to the back: 11 wide, 7 to the gable
 RIBS, RIB_W, RIB_DEPTH = 72, 1.6, 1.2
 BIG = 4 * R
 TOP = bd.Align.MIN
@@ -51,8 +54,9 @@ def build():
     # tilted face (cut everything in front of the plane), then the puck pocket
     body -= plane.location * bd.Box(BIG, BIG, BIG, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
     pocket_d = PUCK_D + 2 * CLEAR
-    body -= plane.location * bd.Pos(0, 0, -(PUCK_T + 0.3)) * bd.Cylinder(
-        pocket_d / 2, PUCK_T + 1, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
+    depth = SEAT * PUCK_T
+    body -= plane.location * bd.Pos(0, 0, -depth) * bd.Cylinder(
+        pocket_d / 2, depth + 1, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
 
     # internal cord run. Turn the puck so its cable points uphill (to the back): the
     # cable leaves the puck's edge straight into a passage under the face, drops
@@ -70,10 +74,7 @@ def build():
     gable = bd.Polygon((-half, 0), (half, 0), (half, wall), (0, TUN_H), (-half, wall), align=None)
     tunnel = bd.extrude(bd.Plane.XZ * gable, amount=R + 5)   # Plane.XZ extrudes toward -Y
     body -= bd.Pos(0, p.Y, 0) * bd.Rot(0, 0, 180) * tunnel
-    assert min(PASS_L, PASS_W) > min(PLUG) + 2 and max(PASS_L, PASS_W) > max(PLUG) + 2
-    # the plug lying flat, with 1 mm all round, fits under the gable
-    pw, ph = PLUG[0] / 2 + 1, PLUG[1] + 1
-    assert half > pw and wall + (half - pw) > ph
+    assert (TUN_W, wall) == HOLE   # the tunnel's opening is the hole, full height at its sides
 
     # the passage opens under the puck, and beyond its edge by only a few mm
     face_r = (p.Y + PASS_L / 2 - origin.Y) / u.Y
