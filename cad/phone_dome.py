@@ -27,6 +27,7 @@ PASS_L, PASS_W = HOLE         # internal passage (radial x across)
 PASS_R = 23.0       # passage centre, mm uphill of the puck centre along the face
 TUN_W, TUN_H = HOLE[0], HOLE[1] + HOLE[0] / 2  # tunnel to the back: 11 wide, 7 to the gable
 RIBS, RIB_W, RIB_DEPTH = 72, 1.6, 1.2
+RIB_MIN = 1.0       # narrowest rib left between grooves (FDM: >= 0.8 mm)
 BIG = 4 * R
 TOP = bd.Align.MIN
 
@@ -45,11 +46,17 @@ def build():
 
     # meridian ribs: a comb of 72 thin planar boxes (cheap to fuse), trimmed once to a
     # skin of the sphere, then cut from the body in one boolean
-    box = bd.Box(R + 2 - 20, RIB_W, BIG, align=(TOP, bd.Align.CENTER, bd.Align.CENTER))
-    box = bd.Pos(20, 0, CZ) * box
+    # grooves converge toward the top; stop them where the rib between two grooves
+    # would fall under RIB_MIN (two 0.4 mm beads), so the cap above is smooth
+    r0 = RIBS * (RIB_W + RIB_MIN) / (2 * math.pi)
+    box = bd.Box(R + 2 - r0, RIB_W, BIG, align=(TOP, bd.Align.CENTER, bd.Align.CENTER))
+    box = bd.Pos(r0, 0, CZ) * box
     comb = bd.Compound([bd.Rot(0, 0, i * 360 / RIBS) * box for i in range(RIBS)])
     skin = bd.Pos(0, 0, CZ) * (bd.Sphere(R + 1) - bd.Sphere(R - RIB_DEPTH))
-    body -= (skin & comb)
+    # leave a smooth collar round the rear cable exit: grooves crossing the tunnel's
+    # sloped roof would leave knife-thin slivers there
+    collar = bd.Box(TUN_W + 4, BIG, TUN_H + 2, align=(bd.Align.CENTER, TOP, TOP))
+    body -= (skin & comb) - collar
 
     # tilted face (cut everything in front of the plane), then the puck pocket
     body -= plane.location * bd.Box(BIG, BIG, BIG, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
