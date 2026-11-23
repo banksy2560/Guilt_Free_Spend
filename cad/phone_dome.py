@@ -19,9 +19,10 @@ TILT = 38.0         # puck face angle from horizontal, degrees
 D = 30.0            # puck plane distance from sphere centre (face circle radius 40)
 PUCK_D, PUCK_T = 56.0, 5.5
 CLEAR = 0.4
-PASS_L, PASS_W = 13.0, 9.0   # internal cord passage, sized for the USB-C plug (~12.3 x 8.4)
-PASS_R = 24.0       # passage centre, mm uphill of the puck centre along the face
-CORD_SLOT, CORD_H = 5.0, 6.0  # channel under the base out to the back (cable ~3.5 mm)
+PLUG = (12.5, 8.5)  # assumed USB-C plug housing (Apple's is ~12.3 x 8.4): measure yours
+PASS_L, PASS_W = 16.0, 11.0   # internal passage: the plug plus ~1.5 mm each side
+PASS_R = 23.0       # passage centre, mm uphill of the puck centre along the face
+TUN_W, TUN_H = 15.0, 17.0     # tunnel under the base to the back: the plug passes it too
 RIBS, RIB_W, RIB_DEPTH = 72, 1.6, 1.2
 BIG = 4 * R
 TOP = bd.Align.MIN
@@ -56,19 +57,27 @@ def build():
     # internal cord run. Turn the puck so its cable points uphill (to the back): the
     # cable leaves the puck's edge straight into a passage under the face, drops
     # through the dome and leaves the back at desk level. The passage is sized for the
-    # USB-C plug to be fed down it from the top; under the base it becomes a channel,
-    # open to the desk, that the cable presses into. From outside only the slot
-    # beside the puck (hidden by the phone) and the small rear exit show.
+    # USB-C plug to be fed down it from the top, then out through the tunnel under
+    # the base, which is open to the desk and also big enough for the plug.
+    # From outside only the slot beside the puck (hidden by the phone) and the small rear exit show.
     p = origin + u * PASS_R
     top = p.Z + 10
     passage = bd.extrude(bd.SlotOverall(PASS_L, PASS_W, rotation=90), amount=top)
     body -= bd.Pos(p.X, p.Y, 0) * passage
-    body -= bd.Pos(0, p.Y, 0) * bd.Box(
-        CORD_SLOT, R + 5, CORD_H, align=(bd.Align.CENTER, TOP, TOP))
+    # tunnel to the back, open to the desk; its roof is a 45-degree gable, not a flat
+    # bridge, so it prints without support
+    half, wall = TUN_W / 2, TUN_H - TUN_W / 2
+    gable = bd.Polygon((-half, 0), (half, 0), (half, wall), (0, TUN_H), (-half, wall), align=None)
+    tunnel = bd.extrude(bd.Plane.XZ * gable, amount=R + 5)   # Plane.XZ extrudes toward -Y
+    body -= bd.Pos(0, p.Y, 0) * bd.Rot(0, 0, 180) * tunnel
+    assert min(PASS_L, PASS_W) > min(PLUG) + 2 and max(PASS_L, PASS_W) > max(PLUG) + 2
+    # the plug lying flat, with 1 mm all round, fits under the gable
+    pw, ph = PLUG[0] / 2 + 1, PLUG[1] + 1
+    assert half > pw and wall + (half - pw) > ph
 
     # the passage opens under the puck, and beyond its edge by only a few mm
     face_r = (p.Y + PASS_L / 2 - origin.Y) / u.Y
-    assert PUCK_D / 2 + CLEAR < face_r < PUCK_D / 2 + 6, face_r
+    assert PUCK_D / 2 + CLEAR < face_r < PUCK_D / 2 + 7, face_r
 
     body.label = "phone_dome"
     body.color = "#cdb89a"
