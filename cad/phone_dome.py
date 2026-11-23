@@ -1,8 +1,8 @@
 """Ribbed dome desk holder for an iPhone on a MagSafe puck.
 
 A sphere truncated flat at the bottom (prints base-down, no supports) and cut by a
-tilted plane. The plane carries a pocket for the puck; the cord drops through a hole
-and leaves the back of the base through a slot.
+tilted plane. The plane carries a pocket for the puck; the cord drops through an internal
+passage and leaves the back of the base at desk level.
 
 Plain build123d, units mm, +Z up, the phone faces -Y. Run to write STEP and STL:
     python phone_dome.py
@@ -19,8 +19,9 @@ TILT = 38.0         # puck face angle from horizontal, degrees
 D = 30.0            # puck plane distance from sphere centre (face circle radius 40)
 PUCK_D, PUCK_T = 56.0, 5.5
 CLEAR = 0.4
-CORD_HOLE = 7.0     # vertical cord hole diameter
-CORD_SLOT = 5.0     # slot width under the base
+PASS_L, PASS_W = 13.0, 9.0   # internal cord passage, sized for the USB-C plug (~12.3 x 8.4)
+PASS_R = 24.0       # passage centre, mm uphill of the puck centre along the face
+CORD_SLOT, CORD_H = 5.0, 6.0  # channel under the base out to the back (cable ~3.5 mm)
 RIBS, RIB_W, RIB_DEPTH = 72, 1.6, 1.2
 BIG = 4 * R
 TOP = bd.Align.MIN
@@ -52,11 +53,22 @@ def build():
     body -= plane.location * bd.Pos(0, 0, -(PUCK_T + 0.3)) * bd.Cylinder(
         pocket_d / 2, PUCK_T + 1, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
 
-    # cord: vertical hole from the pocket's uphill edge to the base, slot to the back
-    q = origin + u * (PUCK_D / 2 - CORD_HOLE / 2 - 1)
-    body -= bd.Pos(q.X, q.Y, 0) * bd.Cylinder(CORD_HOLE / 2, q.Z + 5, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
-    body -= bd.Pos(0, (q.Y + R) / 2, 0) * bd.Box(
-        CORD_SLOT, R - q.Y, 5, align=(bd.Align.CENTER, bd.Align.CENTER, TOP))
+    # internal cord run. Turn the puck so its cable points uphill (to the back): the
+    # cable leaves the puck's edge straight into a passage under the face, drops
+    # through the dome and leaves the back at desk level. The passage is sized for the
+    # USB-C plug to be fed down it from the top; under the base it becomes a channel,
+    # open to the desk, that the cable presses into. From outside only the slot
+    # beside the puck (hidden by the phone) and the small rear exit show.
+    p = origin + u * PASS_R
+    top = p.Z + 10
+    passage = bd.extrude(bd.SlotOverall(PASS_L, PASS_W, rotation=90), amount=top)
+    body -= bd.Pos(p.X, p.Y, 0) * passage
+    body -= bd.Pos(0, p.Y, 0) * bd.Box(
+        CORD_SLOT, R + 5, CORD_H, align=(bd.Align.CENTER, TOP, TOP))
+
+    # the passage opens under the puck, and beyond its edge by only a few mm
+    face_r = (p.Y + PASS_L / 2 - origin.Y) / u.Y
+    assert PUCK_D / 2 + CLEAR < face_r < PUCK_D / 2 + 6, face_r
 
     body.label = "phone_dome"
     body.color = "#cdb89a"
